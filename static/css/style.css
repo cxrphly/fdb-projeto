@@ -1,0 +1,24 @@
+body {
+  background-color: #f8f9fa;
+}
+
+.hover-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.hover-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12) !important;
+}
+
+.table th {
+  background-color: #e9ecef;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-tipo {
+  font-size: 0.75rem;
+}

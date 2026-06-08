@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-on-surface tracking-tight">{{ 'Editar Material' if material else 'Novo Material' }}</h1>
+        <p class="text-sm text-secondary mt-1">Configure as informações do material didático</p>
+    </div>
+    <a href="{{ url_for('materiais.listar') }}" class="text-secondary hover:text-primary transition-colors flex items-center gap-1">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Voltar
+    </a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-outline-variant bg-surface-container-low">
+                <h3 class="font-semibold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">edit_note</span>
+                    Informações Gerais
+                </h3>
+            </div>
+            <form method="POST" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-on-surface-variant mb-1">Título do Material *</label>
+                    <input type="text" name="titulo" required class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" value="{{ material.titulo if material else '' }}" placeholder="Ex: Introdução ao Cálculo Vetorial">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-on-surface-variant mb-1">Descrição</label>
+                    <textarea name="descricao" rows="4" class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm">{{ material.descricao if material else '' }}</textarea>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+
+
+
+                        <label class="block text-sm font-medium text-on-surface-variant mb-1">Tipo de Material *</label>
+                        <select name="tipo_material" required class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm">
+                            <option value="">Selecione...</option>
+                            <option value="apostila" {{ 'selected' if material and material.tipo_material == 'apostila' }}>Apostila</option>
+                            <option value="video" {{ 'selected' if material and material.tipo_material == 'video' }}>Vídeo</option>
+                            <option value="exercicio" {{ 'selected' if material and material.tipo_material == 'exercicio' }}>Exercício</option>
+                            <option value="apresentacao" {{ 'selected' if material and material.tipo_material == 'apresentacao' }}>Apresentação</option>
+                            <option value="link_externo" {{ 'selected' if material and material.tipo_material == 'link_externo' }}>Link Externo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-on-surface-variant mb-1">Arquivo ou Link *</label>
+                        <input type="text" name="arquivo_ou_link" required class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" value="{{ material.arquivo_ou_link if material else '' }}" placeholder="https://exemplo.com/arquivo">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-on-surface-variant mb-1">Disciplina *</label>
+                        <select name="id_disciplina" required class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm">
+                            <option value="">Selecione...</option>
+                            {% for d in disciplinas %}
+                            <option value="{{ d.id_disciplina }}" {{ 'selected' if material and material.id_disciplina == d.id_disciplina }}>{{ d.nome_disciplina }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-on-surface-variant mb-1">Autor *</label>
+                        <select name="id_autor" required class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm">
+                            <option value="">Selecione...</option>
+                            {% for a in autores %}
+                            <option value="{{ a.id_usuario }}" {{ 'selected' if material and material.id_autor == a.id_usuario }}>{{ a.nome_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+    <div class="space-y-6">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-outline-variant bg-surface-container-low">
+                <h3 class="font-semibold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">visibility</span>
+                    Acesso
+                </h3>
+            </div>
+            <div class="p-6 space-y-3">
+                <p class="text-sm font-medium text-on-surface-variant mb-2">Quem pode visualizar?</p>
+                <label class="flex items-center justify-between p-3 border border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low transition-all">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary">public</span>
+                        <div>
+                            <p class="text-sm font-medium text-on-surface">Público</p>
+                            <p class="text-xs text-secondary">Aberto a todos os usuários</p>
+                        </div>
+                    </div>
+                    <input type="radio" name="visibilidade" value="publico" class="w-4 h-4 text-primary" {{ 'checked' if not material or material.visibilidade == 'publico' }}>
+                </label>
+                <label class="flex items-center justify-between p-3 border border-outline-variant rounded-lg cursor-pointer hover:bg-surface-container-low transition-all">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary">lock</span>
+                        <div>
+                            <p class="text-sm font-medium text-on-surface">Privado</p>
+                            <p class="text-xs text-secondary">Restrito a administradores</p>
+                        </div>
+                    </div>
+
+                    <input type="radio" name="visibilidade" value="privado" class="w-4 h-4 text-primary" {{ 'checked' if material and material.visibilidade == 'privado' }}>
+                </label>
+            </div>
+        </div>
+
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-outline-variant bg-surface-container-low">
+                <h3 class="font-semibold text-on-surface flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">sell</span>
+                    Tags
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
+                    {% for tag in tags %}
+                    <label class="flex items-center gap-1 px-3 py-1 border border-outline-variant rounded-full cursor-pointer hover:bg-surface-container-low transition-all text-sm">
+                        <input type="checkbox" name="tags" value="{{ tag.id_tag }}" class="w-4 h-4 text-primary rounded" {{ 'checked' if material and tag in material.tags }}>
+                        <span>{{ tag.nome_tag }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-primary-container/10 border border-primary/20 rounded-xl p-4">
+            <div class="flex items-start gap-2">
+                <span class="material-symbols-outlined text-primary text-sm">info</span>
+                <p class="text-xs text-on-primary-fixed-variant leading-relaxed">
+                    <strong>Dica Profissional:</strong> Materiais com descrições ricas e tags precisas têm uma taxa de descoberta 40% maior nas buscas.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-6 flex justify-end gap-3">
+    <a href="{{ url_for('materiais.listar') }}" class="px-6 py-2 border border-outline-variant rounded-lg text-secondary hover:bg-surface-container-high transition-all">Cancelar</a>
+    <button type="submit" class="px-6 py-2 bg-primary text-on-primary rounded-lg font-medium hover:opacity-90 transition-all shadow-sm flex items-center gap-2">
+        <span class="material-symbols-outlined text-sm">save</span>
+        Salvar Alterações
+    </button>
+</div>
+</form>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-on-surface tracking-tight">Materiais Didáticos</h1>
+        <p class="text-sm text-secondary mt-1">Gerencie o repositório institucional de conteúdos pedagógicos</p>
+    </div>
+    <a href="{{ url_for('materiais.novo') }}" class="bg-primary text-on-primary px-4 py-2 rounded-lg font-medium flex items-center gap-2 hover:opacity-90 transition-all shadow-sm">
+        <span class="material-symbols-outlined text-sm">add</span>
+        Publicar Material
+    </a>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm mb-6">
+    <form method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+        <div class="md:col-span-4">
+            <label class="text-xs font-medium text-on-surface-variant mb-1 block">Buscar por título</label>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+                <input type="text" name="q" value="{{ q or '' }}" class="w-full pl-9 pr-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" placeholder="Ex: Cálculo Integral...">
+            </div>
+        </div>
+        <div class="md:col-span-2">
+            <label class="text-xs font-medium text-on-surface-variant mb-1 block">Tipo</label>
+            <select name="tipo" class="w-full py-2 px-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm">
+                <option value="">Todos</option>
+                <option value="apostila" {{ 'selected' if tipo == 'apostila' }}>Apostila</option>
+                <option value="video" {{ 'selected' if tipo == 'video' }}>Vídeo</option>
+                <option value="exercicio" {{ 'selected' if tipo == 'exercicio' }}>Exercício</option>
+                <option value="apresentacao" {{ 'selected' if tipo == 'apresentacao' }}>Apresentação</option>
+                <option value="link_externo" {{ 'selected' if tipo == 'link_externo' }}>Link Externo</option>
+            </select>
+        </div>
+        <div class="md:col-span-3">
+            <label class="text-xs font-medium text-on-surface-variant mb-1 block">Disciplina</label>
+            <select name="id_disciplina" class="w-full py-2 px-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm">
+                <option value="">Todas</option>
+                {% for d in disciplinas %}
+                <option value="{{ d.id_disciplina }}" {{ 'selected' if id_disciplina|int == d.id_disciplina }}>{{ d.nome_disciplina }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="md:col-span-3 flex gap-2">
+            <button type="submit" class="flex-1 bg-primary-container text-on-primary-container py-2 rounded-lg font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-all">
+                <span class="material-symbols-outlined text-sm">filter_list</span>
+                Filtrar
+            </button>
+            <a href="{{ url_for('materiais.listar') }}" class="px-4 py-2 border border-outline-variant rounded-lg text-secondary hover:bg-surface-container-high transition-all">
+                <span class="material-symbols-outlined text-sm">refresh</span>
+            </a>
+        </div>
+    </form>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+    {% for material in materiais %}
+    <div class="bg-white border border-outline-variant rounded-xl overflow-hidden hover:shadow-md transition-all group">
+        <div class="h-36 bg-surface-container relative">
+            <div class="absolute top-3 left-3">
+                <span class="text-[10px] font-bold px-2 py-1 rounded-full 
+                    {% if material.tipo_material == 'apostila' %}bg-primary text-on-primary
+                    {% elif material.tipo_material == 'video' %}bg-tertiary text-on-tertiary
+                    {% elif material.tipo_material == 'exercicio' %}bg-secondary text-on-secondary
+                    {% else %}bg-surface-container-high text-on-surface{% endif %}">
+                    {{ material.tipo_material|upper }}
+                </span>
+            </div>
+            <div class="w-full h-full flex items-center justify-center bg-primary-fixed/20">
+                <span class="material-symbols-outlined text-5xl text-primary/60">
+                    {% if material.tipo_material == 'apostila' %}description
+                    {% elif material.tipo_material == 'video' %}videocam
+                    {% elif material.tipo_material == 'exercicio' %}edit_note
+                    {% elif material.tipo_material == 'apresentacao' %}co_present
+                    {% else %}link{% endif %}
+                </span>
+            </div>
+        </div>
+
+
+        <div class="p-4">
+            <h3 class="font-semibold text-on-surface mb-1 line-clamp-1">{{ material.titulo }}</h3>
+            <div class="flex items-center gap-1 text-xs text-secondary mb-2">
+                <span class="material-symbols-outlined text-xs">person</span>
+                {{ material.autor.nome_completo }}
+            </div>
+            <div class="flex flex-wrap gap-1 mb-3">
+                {% for tag in material.tags[:3] %}
+                <span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full text-[10px] font-medium">{{ tag.nome_tag }}</span>
+                {% endfor %}
+            </div>
+            <div class="flex items-center justify-between pt-3 border-t border-outline-variant">
+                <span class="text-xs text-secondary">{{ material.data_publicacao.strftime('%d/%m/%Y') if material.data_publicacao else '-' }}</span>
+                <div class="flex gap-1">
+                    <a href="{{ url_for('materiais.editar', id=material.id_material) }}" class="p-1.5 text-secondary hover:text-primary transition-colors rounded-lg" title="Editar">
+                        <span class="material-symbols-outlined text-sm">edit</span>
+                    </a>
+                    <form method="POST" action="{{ url_for('materiais.excluir', id=material.id_material) }}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este material?')">
+                        <button type="submit" class="p-1.5 text-secondary hover:text-error transition-colors rounded-lg" title="Excluir">
+                            <span class="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {% else %}
+    <div class="col-span-full text-center py-12 text-secondary">Nenhum material encontrado</div>
+    {% endfor %}
+</div>
+{% endblock %}

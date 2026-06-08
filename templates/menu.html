@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+    <div>
+        <h1 class="text-3xl font-bold text-on-surface tracking-tight">Dashboard</h1>
+        <p class="text-sm text-secondary mt-1">Visão geral da plataforma e métricas principais</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-secondary text-sm font-medium">Usuários</p>
+                <p class="text-3xl font-bold text-on-surface mt-1">{{ stats.usuarios|default(0) }}</p>
+            </div>
+            <div class="w-12 h-12 bg-primary-container rounded-lg flex items-center justify-center">
+                <span class="material-symbols-outlined text-primary text-2xl">group</span>
+            </div>
+        </div>
+        <a href="{{ url_for('usuarios.listar') }}" class="text-primary text-sm font-medium mt-4 inline-flex items-center gap-1 hover:gap-2 transition-all">
+            Ver detalhes <span class="material-symbols-outlined text-sm">chevron_right</span>
+        </a>
+    </div>
+
+    <div class="bg-white border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-secondary text-sm font-medium">Materiais</p>
+                <p class="text-3xl font-bold text-on-surface mt-1">{{ stats.materiais|default(0) }}</p>
+            </div>
+            <div class="w-12 h-12 bg-tertiary-container rounded-lg flex items-center justify-center">
+                <span class="material-symbols-outlined text-tertiary text-2xl">library_books</span>
+            </div>
+        </div>
+        <a href="{{ url_for('materiais.listar') }}" class="text-primary text-sm font-medium mt-4 inline-flex items-center gap-1 hover:gap-2 transition-all">
+            Ver detalhes <span class="material-symbols-outlined text-sm">chevron_right</span>
+        </a>
+    </div>
+
+    <div class="bg-white border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-secondary text-sm font-medium">Avaliações</p>
+                <p class="text-3xl font-bold text-on-surface mt-1">{{ stats.avaliacoes|default(0) }}</p>
+            </div>
+            <div class="w-12 h-12 bg-secondary-container rounded-lg flex items-center justify-center">
+                <span class="material-symbols-outlined text-secondary text-2xl">star</span>
+            </div>
+        </div>
+        <a href="#" class="text-primary text-sm font-medium mt-4 inline-flex items-center gap-1 hover:gap-2 transition-all">
+            Ver detalhes <span class="material-symbols-outlined text-sm">chevron_right</span>
+        </a>
+    </div>
+
+    <div class="bg-white border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-secondary text-sm font-medium">Denúncias Pendentes</p>
+                <p class="text-3xl font-bold text-on-surface mt-1">{{ stats.denuncias_pendentes|default(0) }}</p>
+            </div>
+            <div class="w-12 h-12 bg-error-container rounded-lg flex items-center justify-center">
+                <span class="material-symbols-outlined text-error text-2xl">flag</span>
+            </div>
+        </div>
+        <a href="#" class="text-primary text-sm font-medium mt-4 inline-flex items-center gap-1 hover:gap-2 transition-all">
+            Ver detalhes <span class="material-symbols-outlined text-sm">chevron_right</span>
+        </a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+        <div class="px-6 py-4 border-b border-outline-variant bg-surface-container-low">
+            <h3 class="font-semibold text-on-surface">Últimos Usuários</h3>
+        </div>
+        <div class="divide-y divide-outline-variant">
+            {% if ultimos_usuarios %}
+                {% for usuario in ultimos_usuarios %}
+                <div class="px-6 py-4 hover:bg-surface-container-low transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-medium text-on-surface">{{ usuario.nome_completo }}</p>
+                            <p class="text-sm text-secondary">{{ usuario.email }}</p>
+                            <p class="text-xs text-secondary mt-1">Cadastro: {{ usuario.data_cadastro.strftime('%d/%m/%Y') if usuario.data_cadastro else '-' }}</p>
+                        </div>
+                        <span class="text-xs font-bold px-2 py-1 rounded-full 
+                            {% if usuario.tipo == 'aluno' %}bg-primary-container text-primary
+                            {% elif usuario.tipo == 'professor' %}bg-tertiary-container text-tertiary
+                            {% else %}bg-error-container text-error{% endif %}">
+                            {{ usuario.tipo|upper }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="px-6 py-8 text-center text-secondary">Nenhum usuário cadastrado</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+        <div class="px-6 py-4 border-b border-outline-variant bg-surface-container-low">
+            <h3 class="font-semibold text-on-surface">Materiais Recentes</h3>
+        </div>
+        <div class="divide-y divide-outline-variant">
+            {% if ultimos_materiais %}
+                {% for material in ultimos_materiais %}
+                <div class="px-6 py-4 hover:bg-surface-container-low transition-colors">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="font-medium text-on-surface">{{ material.titulo }}</p>
+                            <p class="text-sm text-secondary">Autor: {{ material.autor.nome_completo }}</p>
+                            <p class="text-xs text-secondary mt-1">Publicado: {{ material.data_publicacao.strftime('%d/%m/%Y') if material.data_publicacao else '-' }}</p>
+                        </div>
+                        <span class="text-xs font-bold px-2 py-1 rounded-full bg-secondary-container text-secondary">
+                            {{ material.tipo_material }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="px-6 py-8 text-center text-secondary">Nenhum material cadastrado</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

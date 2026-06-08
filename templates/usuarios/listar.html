@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-on-surface tracking-tight">Usuários</h1>
+        <p class="text-sm text-secondary mt-1">Gerencie os acessos, papéis e permissões da instituição</p>
+    </div>
+    <a href="{{ url_for('usuarios.novo') }}" class="bg-primary text-on-primary px-4 py-2 rounded-lg font-medium flex items-center gap-2 hover:opacity-90 transition-all shadow-sm">
+        <span class="material-symbols-outlined text-sm">person_add</span>
+        Novo Usuário
+    </a>
+</div>
+
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm mb-6">
+    <form method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+        <div class="md:col-span-4">
+            <label class="text-xs font-medium text-on-surface-variant mb-1 block">Buscar</label>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+                <input type="text" name="q" value="{{ q or '' }}" class="w-full pl-9 pr-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" placeholder="Nome ou email...">
+            </div>
+        </div>
+        <div class="md:col-span-2">
+            <label class="text-xs font-medium text-on-surface-variant mb-1 block">Tipo</label>
+            <select name="tipo" class="w-full py-2 px-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm">
+                <option value="">Todos</option>
+                <option value="aluno" {{ 'selected' if tipo == 'aluno' }}>Aluno</option>
+                <option value="professor" {{ 'selected' if tipo == 'professor' }}>Professor</option>
+                <option value="administrador" {{ 'selected' if tipo == 'administrador' }}>Administrador</option>
+            </select>
+        </div>
+        <div class="md:col-span-2">
+            <label class="text-xs font-medium text-on-surface-variant mb-1 block">Status</label>
+            <select name="ativo" class="w-full py-2 px-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm">
+                <option value="">Todos</option>
+                <option value="true" {{ 'selected' if ativo == 'true' }}>Ativo</option>
+                <option value="false" {{ 'selected' if ativo == 'false' }}>Inativo</option>
+            </select>
+        </div>
+        <div class="md:col-span-4 flex gap-2">
+            <button type="submit" class="flex-1 bg-primary-container text-on-primary-container py-2 rounded-lg font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-all">
+                <span class="material-symbols-outlined text-sm">filter_list</span>
+                Filtrar
+            </button>
+            <a href="{{ url_for('usuarios.listar') }}" class="px-4 py-2 border border-outline-variant rounded-lg text-secondary hover:bg-surface-container-high transition-all flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">refresh</span>
+            </a>
+        </div>
+    </form>
+</div>
+
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead class="bg-surface-container-high border-b border-outline-variant">
+                <tr>
+                    <th class="px-4 py-3 text-xs font-medium text-secondary uppercase tracking-wider">#</th>
+                    <th class="px-4 py-3 text-xs font-medium text-secondary uppercase tracking-wider">Nome</th>
+                    <th class="px-4 py-3 text-xs font-medium text-secondary uppercase tracking-wider">Email</th>
+                    <th class="px-4 py-3 text-xs font-medium text-secondary uppercase tracking-wider">Tipo</th>
+                    <th class="px-4 py-3 text-xs font-medium text-secondary uppercase tracking-wider">Instituição</th>
+                    <th class="px-4 py-3 text-xs font-medium text-secondary uppercase tracking-wider">Cadastro</th>
+                    <th class="px-4 py-3 text-xs font-medium text-secondary uppercase tracking-wider">Status</th>
+                    <th class="px-4 py-3 text-xs font-medium text-secondary uppercase tracking-wider text-right">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant">
+                {% for usuario in usuarios %}
+                <tr class="hover:bg-surface-container-low transition-colors">
+                    <td class="px-4 py-3 text-sm text-secondary">{{ usuario.id_usuario }}</td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs uppercase">
+                                {{ usuario.nome_completo[:2] }}
+                            </div>
+                            <span class="font-medium text-on-surface">{{ usuario.nome_completo }}</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-secondary">{{ usuario.email }}</td>
+                    <td class="px-4 py-3">
+                        <span class="text-xs font-bold px-2 py-1 rounded-full 
+                            {% if usuario.tipo == 'aluno' %}bg-primary-container text-white
+                            {% elif usuario.tipo == 'professor' %}bg-tertiary-container text-white
+                            {% else %}bg-error-container text-error{% endif %}">
+                            {{ usuario.tipo|upper }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-secondary">{{ usuario.instituicao.nome_instituicao if usuario.instituicao else '-' }}</td>
+                    <td class="px-4 py-3 text-sm text-secondary">{{ usuario.data_cadastro.strftime('%d/%m/%Y') if usuario.data_cadastro else '-' }}</td>
+                    <td class="px-4 py-3">
+                        <span class="flex items-center gap-1 text-xs font-bold {{ 'text-green-600' if usuario.ativo else 'text-red-600' }}">
+                            <span class="w-2 h-2 rounded-full {{ 'bg-green-600' if usuario.ativo else 'bg-red-600' }}"></span>
+                            {{ 'Ativo' if usuario.ativo else 'Inativo' }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <div class="flex items-center justify-end gap-1">
+                            <a href="{{ url_for('usuarios.editar', id=usuario.id_usuario) }}" class="p-1.5 text-secondary hover:text-primary transition-colors rounded-lg" title="Editar">
+                                <span class="material-symbols-outlined text-sm">edit</span>
+                            </a>
+                            <form method="POST" action="{{ url_for('usuarios.desativar', id=usuario.id_usuario) }}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja alterar o status deste usuário?')">
+                                <button type="submit" class="p-1.5 text-secondary hover:text-error transition-colors rounded-lg" title="{{ 'Desativar' if usuario.ativo else 'Reativar' }}">
+                                    <span class="material-symbols-outlined text-sm">{{ 'block' if usuario.ativo else 'check_circle' }}</span>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="px-4 py-8 text-center text-secondary">Nenhum usuário encontrado</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="px-4 py-3 bg-surface-container border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-2">
+        <span class="text-sm text-secondary">Mostrando {{ usuarios|length }} usuários</span>
+        <div class="flex items-center gap-1">
+            <button class="p-1.5 rounded border border-outline-variant hover:bg-surface-container-high transition-all disabled:opacity-50" disabled>
+                <span class="material-symbols-outlined text-sm">chevron_left</span>
+            </button>
+            <button class="px-3 py-1 rounded border border-primary bg-primary text-on-primary text-sm font-medium">1</button>
+            <button class="p-1.5 rounded border border-outline-variant hover:bg-surface-container-high transition-all">
+                <span class="material-symbols-outlined text-sm">chevron_right</span>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

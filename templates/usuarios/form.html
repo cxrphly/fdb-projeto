@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-on-surface tracking-tight">{{ 'Editar Usuário' if usuario else 'Novo Usuário' }}</h1>
+        <p class="text-sm text-secondary mt-1">Preencha as informações acadêmicas e de acesso para criar um novo registro</p>
+    </div>
+    <a href="{{ url_for('usuarios.listar') }}" class="text-secondary hover:text-primary transition-colors flex items-center gap-1">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Voltar
+    </a>
+</div>
+
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+    <form method="POST">
+        <div class="p-6 border-b border-outline-variant bg-surface-container-low">
+            <h3 class="font-semibold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">person</span>
+                Dados Pessoais
+            </h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div class="md:col-span-8">
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">Nome Completo *</label>
+                <input type="text" name="nome_completo" required class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" value="{{ usuario.nome_completo if usuario else '' }}">
+            </div>
+            <div class="md:col-span-4">
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">Tipo de Usuário *</label>
+                <select name="tipo" required class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm">
+                    <option value="">Selecione...</option>
+                    <option value="aluno" {{ 'selected' if usuario and usuario.tipo == 'aluno' }}>Aluno</option>
+                    <option value="professor" {{ 'selected' if usuario and usuario.tipo == 'professor' }}>Professor</option>
+                    <option value="administrador" {{ 'selected' if usuario and usuario.tipo == 'administrador' }}>Administrador</option>
+                </select>
+            </div>
+            <div class="md:col-span-6">
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">E-mail Institucional *</label>
+                <input type="email" name="email" required class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" value="{{ usuario.email if usuario else '' }}">
+            </div>
+            <div class="md:col-span-6">
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">Instituição</label>
+                <select name="id_instituicao" class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm">
+                    <option value="">-- Nenhuma --</option>
+                    {% for inst in instituicoes %}
+                    <option value="{{ inst.id_instituicao }}" {{ 'selected' if usuario and usuario.id_instituicao == inst.id_instituicao }}>
+                        {{ inst.nome_instituicao }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% if not usuario %}
+            <div class="md:col-span-12">
+                <div class="bg-surface-container rounded-lg p-4 border border-outline-variant">
+                    <div class="flex items-start gap-3">
+                        <span class="material-symbols-outlined text-tertiary">info</span>
+                        <div class="flex-1">
+                            <p class="text-xs font-bold text-tertiary mb-2">Requisito de Segurança</p>
+                            <label class="block text-sm font-medium text-on-surface-variant mb-1">Senha de Acesso *</label>
+                            <input type="password" name="senha" required class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" placeholder="Mínimo 8 caracteres">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="p-6 border-b border-outline-variant bg-surface-container-low">
+            <h3 class="font-semibold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">location_on</span>
+                Endereço e Localização
+            </h3>
+        </div>
+        <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div class="md:col-span-4">
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">CEP</label>
+                <input type="text" name="cep" class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" value="{{ usuario.cep if usuario else '' }}" maxlength="9">
+            </div>
+            <div class="md:col-span-6">
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">Logradouro</label>
+                <input type="text" name="logradouro" class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" value="{{ usuario.logradouro if usuario else '' }}">
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">Número</label>
+                <input type="text" name="numero" class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" value="{{ usuario.numero if usuario else '' }}">
+            </div>
+            <div class="md:col-span-4">
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">Complemento</label>
+                <input type="text" name="complemento" class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" value="{{ usuario.complemento if usuario else '' }}">
+            </div>
+            <div class="md:col-span-4">
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">Bairro</label>
+                <input type="text" name="bairro" class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" value="{{ usuario.bairro if usuario else '' }}">
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">Cidade</label>
+                <input type="text" name="cidade_usuario" class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" value="{{ usuario.cidade_usuario if usuario else '' }}">
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">Estado</label>
+                <input type="text" name="estado_usuario" class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" value="{{ usuario.estado_usuario if usuario else '' }}">
+            </div>
+        </div>
+
+        <div class="p-6 bg-surface-container-low border-t border-outline-variant flex flex-col md:flex-row justify-end gap-3">
+            <a href="{{ url_for('usuarios.listar') }}" class="px-6 py-2 border border-outline-variant rounded-lg text-secondary hover:bg-surface-container-high transition-all text-center">Cancelar</a>
+            <button type="submit" class="px-6 py-2 bg-primary text-on-primary rounded-lg font-medium hover:opacity-90 transition-all shadow-sm flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-sm">save</span>
+                Salvar
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

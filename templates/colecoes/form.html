@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-6">
+    <a href="{{ url_for('colecoes.listar') }}" class="text-secondary hover:text-primary flex items-center gap-1 text-sm mb-4 transition-colors">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Voltar para Coleções
+    </a>
+    <h1 class="text-3xl font-bold text-on-surface tracking-tight">{{ 'Editar Coleção' if colecao else 'Nova Coleção' }}</h1>
+</div>
+
+<div class="max-w-2xl">
+    <form method="POST" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-5">
+        <div>
+            <label class="text-sm font-medium text-on-surface-variant mb-1 block">Nome <span class="text-error">*</span></label>
+            <input type="text" name="nome" required value="{{ colecao.nome if colecao else '' }}" class="w-full py-2 px-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface text-sm transition-all" placeholder="Ex: Melhores vídeos de Cálculo">
+        </div>
+
+        <div>
+            <label class="text-sm font-medium text-on-surface-variant mb-1 block">Descrição</label>
+            <textarea name="descricao" rows="3" class="w-full py-2 px-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface text-sm transition-all resize-none" placeholder="Descreva o objetivo desta coleção...">{{ colecao.descricao or '' if colecao }}</textarea>
+        </div>
+
+        <div>
+            <label class="text-sm font-medium text-on-surface-variant mb-1 block">Criador <span class="text-error">*</span></label>
+            <select name="id_usuario_criador" required class="w-full py-2 px-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface text-sm transition-all">
+                <option value="">Selecione um usuário...</option>
+                {% for u in usuarios %}
+                <option value="{{ u.id_usuario }}" {{ 'selected' if colecao and colecao.id_usuario_criador == u.id_usuario }}>{{ u.nome_completo }} ({{ u.tipo }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label class="text-sm font-medium text-on-surface-variant mb-2 block">Visibilidade</label>
+            <div class="flex gap-4">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="visibilidade" value="publica" {{ 'checked' if not colecao or colecao.visibilidade == 'publica' }} class="text-primary">
+                    <span class="text-sm text-on-surface">Pública</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="visibilidade" value="privada" {{ 'checked' if colecao and colecao.visibilidade == 'privada' }} class="text-primary">
+                    <span class="text-sm text-on-surface">Privada</span>
+                </label>
+            </div>
+        </div>
+
+        <div>
+            <label class="text-sm font-medium text-on-surface-variant mb-2 block">Materiais da Coleção</label>
+            <div class="relative mb-2">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+                <input type="text" id="buscaMaterial" oninput="filtrarMateriais()" placeholder="Buscar material..." class="w-full pl-9 pr-3 py-2 border border-outline-variant rounded-lg bg-surface text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
+            </div>
+            <div id="listaMateriais" class="border border-outline-variant rounded-lg max-h-56 overflow-y-auto p-3 bg-surface space-y-2">
+                {% for m in materiais %}
+                <label class="flex items-center gap-2 cursor-pointer hover:bg-surface-container rounded px-2 py-1 transition-colors material-item" data-nome="{{ m.titulo|lower }}">
+                    <input type="checkbox" name="materiais" value="{{ m.id_material }}" {{ 'checked' if m.id_material in materiais_colecao }} class="text-primary rounded">
+                    <span class="text-sm text-on-surface">{{ m.titulo }}</span>
+                    <span class="text-[10px] text-secondary ml-auto">{{ m.tipo_material }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            <p class="text-xs text-secondary mt-1">Selecione os materiais que farão parte desta coleção.</p>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+            <button type="submit" class="bg-primary text-on-primary px-6 py-2 rounded-lg font-medium hover:opacity-90 transition-all">
+                {{ 'Salvar Alterações' if colecao else 'Criar Coleção' }}
+            </button>
+            <a href="{{ url_for('colecoes.listar') }}" class="px-6 py-2 border border-outline-variant rounded-lg text-secondary hover:bg-surface-container-high transition-all">Cancelar</a>
+        </div>
+    </form>
+</div>
+<script>
+function filtrarMateriais() {
+    const termo = document.getElementById('buscaMaterial').value.toLowerCase();
+    document.querySelectorAll('.material-item').forEach(item => {
+        item.style.display = item.dataset.nome.includes(termo) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

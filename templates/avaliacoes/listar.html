@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-on-surface tracking-tight">Avaliações</h1>
+        <p class="text-sm text-secondary mt-1">Notas e comentários dos usuários sobre os materiais</p>
+    </div>
+    <a href="{{ url_for('avaliacoes.nova') }}" class="bg-primary text-on-primary px-4 py-2 rounded-lg font-medium flex items-center gap-2 hover:opacity-90 transition-all shadow-sm">
+        <span class="material-symbols-outlined text-sm">add</span>
+        Nova Avaliação
+    </a>
+</div>
+
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm mb-6">
+    <form method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+        <div class="md:col-span-5">
+            <label class="text-xs font-medium text-on-surface-variant mb-1 block">Buscar por material ou usuário</label>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+                <input type="text" name="q" value="{{ q or '' }}" class="w-full pl-9 pr-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" placeholder="Ex: Cálculo, João Silva...">
+            </div>
+        </div>
+        <div class="md:col-span-3">
+            <label class="text-xs font-medium text-on-surface-variant mb-1 block">Nota</label>
+            <select name="nota" class="w-full py-2 px-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm">
+                <option value="">Todas</option>
+                {% for n in [1,2,3,4,5] %}
+                <option value="{{ n }}" {{ 'selected' if nota|int == n }}>{{ n }} estrela{{ 's' if n > 1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="md:col-span-4 flex gap-2">
+            <button type="submit" class="flex-1 bg-primary-container text-on-primary-container py-2 rounded-lg font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-all">
+                <span class="material-symbols-outlined text-sm">filter_list</span>
+                Filtrar
+            </button>
+            <a href="{{ url_for('avaliacoes.listar') }}" class="px-4 py-2 border border-outline-variant rounded-lg text-secondary hover:bg-surface-container-high transition-all">
+                <span class="material-symbols-outlined text-sm">refresh</span>
+            </a>
+        </div>
+    </form>
+</div>
+
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-surface-container border-b border-outline-variant">
+            <tr>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Material</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Usuário</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Nota</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-on-surface-variant uppercase tracking-wider hidden md:table-cell">Comentário</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-on-surface-variant uppercase tracking-wider hidden lg:table-cell">Data</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-outline-variant">
+            {% for av in avaliacoes %}
+            <tr class="hover:bg-surface-container transition-colors">
+                <td class="px-4 py-3 font-medium text-on-surface max-w-[200px] truncate">{{ av.material.titulo }}</td>
+                <td class="px-4 py-3 text-secondary">{{ av.avaliador.nome_completo }}</td>
+                <td class="px-4 py-3 text-center">
+                    <div class="flex items-center justify-center gap-0.5">
+                        {% for i in range(1, 6) %}
+                        <span class="material-symbols-outlined text-sm {{ 'text-yellow-400' if i <= av.nota else 'text-outline-variant' }}" style="font-variation-settings: 'FILL' {{ '1' if i <= av.nota else '0' }}">star</span>
+                        {% endfor %}
+                    </div>
+                </td>
+                <td class="px-4 py-3 text-secondary hidden md:table-cell max-w-[220px] truncate">{{ av.comentario or '—' }}</td>
+                <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ av.data_hora.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td class="px-4 py-3 text-center">
+                    <div class="flex items-center justify-center gap-1">
+                        <a href="{{ url_for('avaliacoes.editar', id=av.id_avaliacao) }}" class="p-1.5 text-secondary hover:text-primary transition-colors rounded-lg" title="Editar">
+                            <span class="material-symbols-outlined text-sm">edit</span>
+                        </a>
+                        <form method="POST" action="{{ url_for('avaliacoes.excluir', id=av.id_avaliacao) }}" onsubmit="return confirm('Remover esta avaliação?')">
+                            <button type="submit" class="p-1.5 text-secondary hover:text-error transition-colors rounded-lg" title="Excluir">
+                                <span class="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" class="text-center py-12 text-secondary">Nenhuma avaliação encontrada</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<p class="text-xs text-secondary mt-3">{{ avaliacoes|length }} avaliação(ões) encontrada(s)</p>
+{% endblock %}

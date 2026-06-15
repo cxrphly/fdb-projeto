@@ -10,12 +10,9 @@
         <h1 class="text-3xl font-bold text-on-surface tracking-tight">Votos por Material</h1>
         <p class="text-sm text-secondary mt-1">Top 10 materiais — útil vs não útil. Acompanhe a percepção qualitativa dos alunos</p>
     </div>
-    <div class="flex gap-2">
-        <button class="bg-surface-container-lowest border border-outline-variant text-on-surface px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1 hover:bg-surface-container-high transition-all">
-            <span class="material-symbols-outlined text-sm">download</span>
-            Exportar
-        </button>
-    </div>
+    <button onclick="exportChart()" class="bg-surface-container-lowest border border-outline-variant text-on-surface px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1 hover:bg-surface-container-high transition-all">
+        <span class="material-symbols-outlined text-sm">download</span> Exportar
+    </button>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -37,7 +34,13 @@
                 </div>
             </div>
         </div>
-        <div class="h-[400px] w-full">
+        <div class="h-[400px] w-full relative">
+            <div id="loadingVotos" class="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
+                <div class="flex flex-col items-center gap-2 text-secondary">
+                    <div class="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                    <span class="text-sm">Carregando dados...</span>
+                </div>
+            </div>
             <canvas id="votesChart"></canvas>
         </div>
     </div>
@@ -105,9 +108,11 @@
 </div>
 
 <script>
+let chartInstance = null;
 fetch('/graficos/votos/dados')
     .then(r => r.json())
     .then(data => {
+        document.getElementById('loadingVotos').style.display = 'none';
         let totalUteis = data.uteis.reduce((a,b) => a + b, 0);
         let totalNaoUteis = data.nao_uteis.reduce((a,b) => a + b, 0);
         let total = totalUteis + totalNaoUteis;
@@ -120,7 +125,7 @@ fetch('/graficos/votos/dados')
         document.getElementById('destaqueTitulo').innerText = data.labels[maxIndex];
         document.getElementById('destaqueDescricao').innerHTML = 'Material com maior índice de aprovação histórica';
         
-        new Chart(document.getElementById('votesChart'), {
+        chartInstance = new Chart(document.getElementById('votesChart'), {
             type: 'bar',
             data: {
                 labels: data.labels,
@@ -138,5 +143,13 @@ fetch('/graficos/votos/dados')
             }
         });
     });
+
+function exportChart() {
+    if (!chartInstance) return;
+    const link = document.createElement('a');
+    link.download = 'grafico-votos.png';
+    link.href = chartInstance.toBase64Image();
+    link.click();
+}
 </script>
 {% endblock %}

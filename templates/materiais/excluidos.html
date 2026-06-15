@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+    <div>
+        <a href="{{ url_for('materiais.listar') }}" class="text-secondary hover:text-primary flex items-center gap-1 text-sm mb-2 transition-colors">
+            <span class="material-symbols-outlined text-sm">arrow_back</span>
+            Voltar para Materiais
+        </a>
+        <h1 class="text-3xl font-bold text-on-surface tracking-tight">Materiais Excluídos</h1>
+        <p class="text-sm text-secondary mt-1">Materiais removidos logicamente — você pode restaurá-los</p>
+    </div>
+</div>
+
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+    <table class="w-full text-sm">
+        <thead class="bg-surface-container border-b border-outline-variant">
+            <tr>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Título</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-on-surface-variant uppercase tracking-wider hidden md:table-cell">Tipo</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-on-surface-variant uppercase tracking-wider hidden lg:table-cell">Autor</th>
+                <th class="text-left px-4 py-3 text-xs font-semibold text-on-surface-variant uppercase tracking-wider hidden lg:table-cell">Publicado em</th>
+                <th class="text-center px-4 py-3 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-outline-variant">
+            {% for material in materiais %}
+            <tr class="hover:bg-surface-container transition-colors opacity-75">
+                <td class="px-4 py-3 font-medium text-on-surface">{{ material.titulo }}</td>
+                <td class="px-4 py-3 hidden md:table-cell">
+                    <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-surface-container-high text-secondary">
+                        {{ material.tipo_material|upper }}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ material.autor.nome_completo }}</td>
+                <td class="px-4 py-3 text-secondary hidden lg:table-cell">{{ material.data_publicacao.strftime('%d/%m/%Y') if material.data_publicacao else '-' }}</td>
+                <td class="px-4 py-3 text-center">
+                    <form method="POST" action="{{ url_for('materiais.restaurar', id=material.id_material) }}" onsubmit="return confirm('Restaurar este material?')">
+                        <button type="submit" class="px-3 py-1.5 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg text-xs font-medium transition-colors flex items-center gap-1 mx-auto">
+                            <span class="material-symbols-outlined text-sm">restore</span>
+                            Restaurar
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center py-12 text-secondary">
+                    <span class="material-symbols-outlined text-4xl block mb-2">check_circle</span>
+                    Nenhum material excluído
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<p class="text-xs text-secondary mt-3">{{ materiais|length }} material(is) excluído(s)</p>
+{% endblock %}

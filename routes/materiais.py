@@ -3,11 +3,15 @@ from database import db
 from models import MaterialDidatico, Usuario, Disciplina, Tag
 
 materiais_bp = Blueprint("materiais", __name__)
+
+PER_PAGE = 12
+
 @materiais_bp.route("/")
 def listar():
     q = request.args.get("q", "")
     tipo = request.args.get("tipo", "")
     id_disciplina = request.args.get("id_disciplina", "")
+    page = request.args.get("page", 1, type=int)
 
     query = MaterialDidatico.query.filter_by(ativo=True)
     if q:
@@ -17,10 +21,10 @@ def listar():
     if id_disciplina:
         query = query.filter(MaterialDidatico.id_disciplina == id_disciplina)
 
-    materiais = query.order_by(MaterialDidatico.data_publicacao.desc()).all()
+    paginacao = query.order_by(MaterialDidatico.data_publicacao.desc()).paginate(page=page, per_page=PER_PAGE, error_out=False)
     disciplinas = Disciplina.query.order_by(Disciplina.nome_disciplina).all()
-    return render_template("materiais/listar.html", materiais=materiais, disciplinas=disciplinas,
-                           q=q, tipo=tipo, id_disciplina=id_disciplina)
+    return render_template("materiais/listar.html", materiais=paginacao.items, paginacao=paginacao,
+                           disciplinas=disciplinas, q=q, tipo=tipo, id_disciplina=id_disciplina)
 
 @materiais_bp.route("/novo", methods=["GET", "POST"])
 def novo():
@@ -44,7 +48,7 @@ def novo():
                 material.tags.append(tag)
         db.session.add(material)
         db.session.commit()
-        flash("Material publicado com sucesso!", "success")
+        flash(f"Material '{material.titulo}' publicado com sucesso!", "success")
         return redirect(url_for("materiais.listar"))
     return render_template("materiais/form.html", material=None, disciplinas=disciplinas, tags=tags, autores=autores)
 
@@ -68,7 +72,7 @@ def editar(id):
             if tag:
                 material.tags.append(tag)
         db.session.commit()
-        flash("Material atualizado!", "success")
+        flash(f"Material '{material.titulo}' atualizado!", "success")
         return redirect(url_for("materiais.listar"))
     return render_template("materiais/form.html", material=material, disciplinas=disciplinas, tags=tags, autores=autores)
 
@@ -77,12 +81,28 @@ def editar(id):
 
 
 
+@materiais_bp.route("/excluidos")
+def excluidos():
+    materiais = MaterialDidatico.query.filter_by(ativo=False).order_by(MaterialDidatico.data_publicacao.desc()).all()
+    return render_template("materiais/excluidos.html", materiais=materiais)
+
+
+@materiais_bp.route("/restaurar/<int:id>", methods=["POST"])
+def restaurar(id):
+    material = MaterialDidatico.query.get_or_404(id)
+    material.ativo = True
+    db.session.commit()
+    flash(f"Material '{material.titulo}' restaurado com sucesso!", "success")
+    return redirect(url_for("materiais.excluidos"))
+
+
 @materiais_bp.route("/excluir/<int:id>", methods=["POST"])
 def excluir(id):
     material = MaterialDidatico.query.get_or_404(id)
+    titulo = material.titulo
     material.ativo = False
     db.session.commit()
-    flash("Material removido (exclusão lógica).", "warning")
+    flash(f"Material '{titulo}' removido. Você pode restaurá-lo em 'Ver Excluídos'.", "warning")
     return redirect(url_for("materiais.listar"))
 
 @materiais_bp.route("/compartilhar/<int:id>", methods=["GET", "POST"])
@@ -170,7 +190,7 @@ def visualizar(id):
     from models import AcessoMaterial
     acesso = AcessoMaterial(
         id_material=material.id_material,
-        id_usuario=1,  # TODO:
+        id_usuario=None,
         data_hora_acesso=datetime.utcnow(),
         oculto_no_historico=False
     )
@@ -288,7 +308,7 @@ def importar():
 
         db.session.add(material)
         db.session.commit()
-        flash("Material importado com sucess", "success")
+        flash(f"Material '{titulo}' importado com sucesso!", "success")
         return redirect(url_for("materiais.listar"))
     
     return render_template(

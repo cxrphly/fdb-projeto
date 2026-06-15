@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-6">
+    <a href="{{ url_for('avaliacoes.listar') }}" class="text-secondary hover:text-primary flex items-center gap-1 text-sm mb-4 transition-colors">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Voltar para Avaliações
+    </a>
+    <h1 class="text-3xl font-bold text-on-surface tracking-tight">{{ 'Editar Avaliação' if avaliacao else 'Nova Avaliação' }}</h1>
+</div>
+
+<div class="max-w-2xl">
+    <form method="POST" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-5">
+        <div>
+            <label class="text-sm font-medium text-on-surface-variant mb-1 block">Material <span class="text-error">*</span></label>
+            <select name="id_material" required {{ 'disabled' if avaliacao }} class="w-full py-2 px-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface text-sm transition-all">
+                <option value="">Selecione um material...</option>
+                {% for m in materiais %}
+                <option value="{{ m.id_material }}" {{ 'selected' if avaliacao and avaliacao.id_material == m.id_material }}>{{ m.titulo }}</option>
+                {% endfor %}
+            </select>
+            {% if avaliacao %}
+            <input type="hidden" name="id_material" value="{{ avaliacao.id_material }}">
+            <p class="text-xs text-secondary mt-1">O material não pode ser alterado após a criação.</p>
+            {% endif %}
+        </div>
+
+        <div>
+            <label class="text-sm font-medium text-on-surface-variant mb-1 block">Usuário Avaliador <span class="text-error">*</span></label>
+            <select name="id_usuario_avaliador" required {{ 'disabled' if avaliacao }} class="w-full py-2 px-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface text-sm transition-all">
+                <option value="">Selecione um usuário...</option>
+                {% for u in usuarios %}
+                <option value="{{ u.id_usuario }}" {{ 'selected' if avaliacao and avaliacao.id_usuario_avaliador == u.id_usuario }}>{{ u.nome_completo }} ({{ u.tipo }})</option>
+                {% endfor %}
+            </select>
+            {% if avaliacao %}
+            <input type="hidden" name="id_usuario_avaliador" value="{{ avaliacao.id_usuario_avaliador }}">
+            {% endif %}
+        </div>
+
+        <div>
+            <label class="text-sm font-medium text-on-surface-variant mb-2 block">Nota <span class="text-error">*</span></label>
+            <div class="flex gap-3" id="starContainer">
+                {% for n in [1,2,3,4,5] %}
+                <label class="flex flex-col items-center gap-1 cursor-pointer" data-value="{{ n }}">
+                    <input type="radio" name="nota" value="{{ n }}" required class="sr-only" {{ 'checked' if avaliacao and avaliacao.nota == n }}>
+                    <span class="material-symbols-outlined text-3xl text-outline-variant transition-colors star-icon">star</span>
+                    <span class="text-xs text-secondary">{{ n }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div>
+            <label class="text-sm font-medium text-on-surface-variant mb-1 block">Comentário</label>
+            <textarea name="comentario" rows="4" class="w-full py-2 px-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface text-sm transition-all resize-none" placeholder="Descreva sua experiência com o material...">{{ avaliacao.comentario or '' if avaliacao }}</textarea>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+            <button type="submit" class="bg-primary text-on-primary px-6 py-2 rounded-lg font-medium hover:opacity-90 transition-all">
+                {{ 'Salvar Alterações' if avaliacao else 'Registrar Avaliação' }}
+            </button>
+            <a href="{{ url_for('avaliacoes.listar') }}" class="px-6 py-2 border border-outline-variant rounded-lg text-secondary hover:bg-surface-container-high transition-all">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const labels = document.querySelectorAll('#starContainer label');
+
+    function paintStars(selected) {
+        labels.forEach((lbl, i) => {
+            const icon = lbl.querySelector('.star-icon');
+            if (i < selected) {
+                icon.style.fontVariationSettings = "'FILL' 1";
+                icon.classList.add('text-yellow-400');
+                icon.classList.remove('text-outline-variant');
+            } else {
+                icon.style.fontVariationSettings = "'FILL' 0";
+                icon.classList.remove('text-yellow-400');
+                icon.classList.add('text-outline-variant');
+            }
+        });
+    }
+
+    labels.forEach((lbl, i) => {
+        lbl.addEventListener('mouseenter', () => paintStars(i + 1));
+        lbl.addEventListener('mouseleave', () => {
+            const checked = document.querySelector('input[name="nota"]:checked');
+            paintStars(checked ? parseInt(checked.value) : 0);
+        });
+        lbl.addEventListener('click', () => {
+            lbl.querySelector('input').checked = true;
+            paintStars(i + 1);
+        });
+    });
+
+    {% if avaliacao %}paintStars({{ avaliacao.nota }});{% endif %}
+});
+</script>
+{% endblock %}

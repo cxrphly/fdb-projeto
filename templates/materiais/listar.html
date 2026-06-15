@@ -6,10 +6,16 @@
         <h1 class="text-3xl font-bold text-on-surface tracking-tight">Materiais Didáticos</h1>
         <p class="text-sm text-secondary mt-1">Gerencie o repositório institucional de conteúdos pedagógicos</p>
     </div>
-    <a href="{{ url_for('materiais.novo') }}" class="bg-primary text-on-primary px-4 py-2 rounded-lg font-medium flex items-center gap-2 hover:opacity-90 transition-all shadow-sm">
-        <span class="material-symbols-outlined text-sm">add</span>
-        Publicar Material
-    </a>
+    <div class="flex gap-2">
+        <a href="{{ url_for('materiais.excluidos') }}" class="border border-outline-variant text-secondary px-4 py-2 rounded-lg font-medium flex items-center gap-2 hover:bg-surface-container-high transition-all">
+            <span class="material-symbols-outlined text-sm">delete_history</span>
+            Ver Excluídos
+        </a>
+        <a href="{{ url_for('materiais.novo') }}" class="bg-primary text-on-primary px-4 py-2 rounded-lg font-medium flex items-center gap-2 hover:opacity-90 transition-all shadow-sm">
+            <span class="material-symbols-outlined text-sm">add</span>
+            Publicar Material
+        </a>
+    </div>
 </div>
 <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm mb-6">
     <form method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
@@ -90,6 +96,9 @@
             <div class="flex items-center justify-between pt-3 border-t border-outline-variant">
                 <span class="text-xs text-secondary">{{ material.data_publicacao.strftime('%d/%m/%Y') if material.data_publicacao else '-' }}</span>
                 <div class="flex gap-1">
+                    <a href="{{ url_for('materiais.visualizar', id=material.id_material) }}" target="_blank" class="p-1.5 text-secondary hover:text-green-600 transition-colors rounded-lg" title="Visualizar">
+                        <span class="material-symbols-outlined text-sm">open_in_new</span>
+                    </a>
                     <a href="{{ url_for('materiais.editar', id=material.id_material) }}" class="p-1.5 text-secondary hover:text-primary transition-colors rounded-lg" title="Editar">
                         <span class="material-symbols-outlined text-sm">edit</span>
                     </a>
@@ -105,7 +114,45 @@
 
 
     {% else %}
-    <div class="col-span-full text-center py-12 text-secondary">Nenhum material encontrado</div>
+    <div class="col-span-full text-center py-12 text-secondary">
+        <span class="material-symbols-outlined text-4xl block mb-2">library_books</span>
+        Nenhum material encontrado
+    </div>
     {% endfor %}
 </div>
+
+{% if paginacao and paginacao.pages > 1 %}
+<div class="flex items-center justify-between mt-6">
+    <span class="text-sm text-secondary">
+        Exibindo {{ (paginacao.page - 1) * paginacao.per_page + 1 }}–{{ [paginacao.page * paginacao.per_page, paginacao.total]|min }} de {{ paginacao.total }} materiais
+    </span>
+    <div class="flex items-center gap-1">
+        {% if paginacao.has_prev %}
+        <a href="{{ url_for('materiais.listar', page=paginacao.prev_num, q=q, tipo=tipo, id_disciplina=id_disciplina) }}" class="p-1.5 rounded border border-outline-variant hover:bg-surface-container-high transition-all">
+            <span class="material-symbols-outlined text-sm">chevron_left</span>
+        </a>
+        {% else %}
+        <button class="p-1.5 rounded border border-outline-variant opacity-40" disabled><span class="material-symbols-outlined text-sm">chevron_left</span></button>
+        {% endif %}
+
+        {% for p in paginacao.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+            {% if p %}
+            <a href="{{ url_for('materiais.listar', page=p, q=q, tipo=tipo, id_disciplina=id_disciplina) }}" class="px-3 py-1 rounded border text-sm font-medium transition-all {{ 'border-primary bg-primary text-on-primary' if p == paginacao.page else 'border-outline-variant hover:bg-surface-container-high' }}">{{ p }}</a>
+            {% else %}
+            <span class="px-2 text-secondary">…</span>
+            {% endif %}
+        {% endfor %}
+
+        {% if paginacao.has_next %}
+        <a href="{{ url_for('materiais.listar', page=paginacao.next_num, q=q, tipo=tipo, id_disciplina=id_disciplina) }}" class="p-1.5 rounded border border-outline-variant hover:bg-surface-container-high transition-all">
+            <span class="material-symbols-outlined text-sm">chevron_right</span>
+        </a>
+        {% else %}
+        <button class="p-1.5 rounded border border-outline-variant opacity-40" disabled><span class="material-symbols-outlined text-sm">chevron_right</span></button>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<p class="text-xs text-secondary mt-3">{{ paginacao.total if paginacao else materiais|length }} material(is) encontrado(s)</p>
+{% endif %}
 {% endblock %}

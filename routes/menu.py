@@ -20,13 +20,6 @@ def index():
             MaterialDidatico.id_material.desc()
         ).limit(5).all()
         
-        print(f"DEBUG - Stats: {stats}")
-
-
-        
-        print(f"DEBUG - Usuários: {len(ultimos_usuarios)}")
-        print(f"DEBUG - Materiais: {len(ultimos_materiais)}")
-        
     except Exception as e:
         print(f"ERRO: {e}")
         stats = {'usuarios': 0, 'materiais': 0, 'avaliacoes': 0, 'denuncias_pendentes': 0}

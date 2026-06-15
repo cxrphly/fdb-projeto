@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-6">
+    <a href="{{ url_for('favoritos.listar') }}" class="text-secondary hover:text-primary flex items-center gap-1 text-sm mb-4 transition-colors">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Voltar para Favoritos
+    </a>
+    <h1 class="text-3xl font-bold text-on-surface tracking-tight">Adicionar Favorito</h1>
+</div>
+
+<div class="max-w-xl">
+    <form method="POST" class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 shadow-sm space-y-5">
+        <div>
+            <label class="text-sm font-medium text-on-surface-variant mb-1 block">Usuário <span class="text-error">*</span></label>
+            <select name="id_usuario" required class="w-full py-2 px-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface text-sm transition-all">
+                <option value="">Selecione um usuário...</option>
+                {% for u in usuarios %}
+                <option value="{{ u.id_usuario }}">{{ u.nome_completo }} ({{ u.tipo }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label class="text-sm font-medium text-on-surface-variant mb-1 block">Material <span class="text-error">*</span></label>
+            <select name="id_material" required class="w-full py-2 px-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface text-sm transition-all">
+                <option value="">Selecione um material...</option>
+                {% for m in materiais %}
+                <option value="{{ m.id_material }}">{{ m.titulo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+            <button type="submit" class="bg-primary text-on-primary px-6 py-2 rounded-lg font-medium hover:opacity-90 transition-all">
+                Adicionar Favorito
+            </button>
+            <a href="{{ url_for('favoritos.listar') }}" class="px-6 py-2 border border-outline-variant rounded-lg text-secondary hover:bg-surface-container-high transition-all">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

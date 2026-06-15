@@ -100,6 +100,9 @@
 <body class="bg-surface text-on-surface font-sans min-h-screen">
     <header class="flex justify-between items-center w-full px-6 h-16 fixed top-0 z-50 bg-surface border-b border-outline-variant shadow-sm">
         <div class="flex items-center gap-4">
+            <button id="menuToggle" class="lg:hidden p-2 text-secondary hover:bg-surface-container-low rounded-full transition-smooth" onclick="toggleSidebar()">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
             <span class="text-xl font-bold text-primary">Plataforma Educa+</span>
             <div class="hidden md:flex gap-2 ml-6">
                 <a href="{{ url_for('menu.index') }}" class="text-secondary font-medium hover:bg-surface-container-low transition-colors px-3 py-1 rounded-lg">Dashboard</a>
@@ -116,7 +119,8 @@
         </div>
     </header>
 
-    <aside class="fixed left-0 top-0 h-full flex flex-col pt-16 z-40 bg-surface-container-lowest border-r border-outline-variant w-64 hidden lg:flex">
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/30 z-30 hidden lg:hidden" onclick="toggleSidebar()"></div>
+    <aside id="sidebar" class="fixed left-0 top-0 h-full flex flex-col pt-16 z-40 bg-surface-container-lowest border-r border-outline-variant w-64 hidden lg:flex transition-transform duration-200">
         <div class="p-4 flex items-center gap-3 mb-2">
             <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-on-primary">
                 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">school</span>
@@ -138,23 +142,25 @@
                 <span class="material-symbols-outlined">library_books</span>
                 <span class="text-sm font-medium">Materiais</span>
             </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
+            <a href="{{ url_for('avaliacoes.listar') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
                 <span class="material-symbols-outlined">assignment</span>
                 <span class="text-sm font-medium">Avaliações</span>
             </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
+            <a href="{{ url_for('favoritos.listar') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
                 <span class="material-symbols-outlined">star</span>
                 <span class="text-sm font-medium">Favoritos</span>
             </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
+            <div class="flex items-center gap-3 px-4 py-2 text-outline rounded-lg mx-2 opacity-60 cursor-not-allowed">
                 <span class="material-symbols-outlined">chat</span>
                 <span class="text-sm font-medium">Comentários</span>
-            </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
+                <span class="ml-auto text-[9px] font-bold bg-secondary-container text-secondary px-1.5 py-0.5 rounded-full">EM BREVE</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2 text-outline rounded-lg mx-2 opacity-60 cursor-not-allowed">
                 <span class="material-symbols-outlined">report</span>
                 <span class="text-sm font-medium">Denúncias</span>
-            </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
+                <span class="ml-auto text-[9px] font-bold bg-secondary-container text-secondary px-1.5 py-0.5 rounded-full">EM BREVE</span>
+            </div>
+            <a href="{{ url_for('colecoes.listar') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
                 <span class="material-symbols-outlined">folder_special</span>
                 <span class="text-sm font-medium">Coleções</span>
             </a>
@@ -162,32 +168,33 @@
                 <span class="material-symbols-outlined">analytics</span>
                 <span class="text-sm font-medium">Gráfico Votos Utilidade</span>
             </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
+            <a href="{{ url_for('graficos.acessos') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
                 <span class="material-symbols-outlined">analytics</span>
                 <span class="text-sm font-medium">Gráfico Acesso Materiais</span>
             </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
+            <a href="{{ url_for('graficos.notas') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
                 <span class="material-symbols-outlined">analytics</span>
                 <span class="text-sm font-medium">Gráfico Notas Materiais</span>
             </a>
-
-            <a href="#" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
+            <div class="flex items-center gap-3 px-4 py-2 text-outline rounded-lg mx-2 opacity-60 cursor-not-allowed">
                 <span class="material-symbols-outlined">menu_book</span>
                 <span class="text-sm font-medium">Disciplinas</span>
-            </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
+                <span class="ml-auto text-[9px] font-bold bg-secondary-container text-secondary px-1.5 py-0.5 rounded-full">EM BREVE</span>
+            </div>
+            <div class="flex items-center gap-3 px-4 py-2 text-outline rounded-lg mx-2 opacity-60 cursor-not-allowed">
                 <span class="material-symbols-outlined">sell</span>
                 <span class="text-sm font-medium">Tags</span>
-            </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
+                <span class="ml-auto text-[9px] font-bold bg-secondary-container text-secondary px-1.5 py-0.5 rounded-full">EM BREVE</span>
+            </div>
+            <a href="{{ url_for('historico.listar') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
                 <span class="material-symbols-outlined">history</span>
                 <span class="text-sm font-medium">Histórico</span>
             </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
+            <a href="{{ url_for('materiais.sugestoes') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
                 <span class="material-symbols-outlined">recommend</span>
                 <span class="text-sm font-medium">Recomendações</span>
             </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
+            <a href="{{ url_for('materiais.importar') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
                 <span class="material-symbols-outlined">cloud_upload</span>
                 <span class="text-sm font-medium">Importar por URL</span>
             </a>
@@ -233,6 +240,21 @@
                 setTimeout(() => msg.remove(), 300);
             });
         }, 5000);
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const isOpen = sidebar.classList.contains('flex');
+            if (isOpen) {
+                sidebar.classList.remove('flex');
+                sidebar.classList.add('hidden');
+                overlay.classList.add('hidden');
+            } else {
+                sidebar.classList.add('flex');
+                sidebar.classList.remove('hidden');
+                overlay.classList.remove('hidden');
+            }
+        }
     </script>
     {% block extra_scripts %}{% endblock %}
 </body>

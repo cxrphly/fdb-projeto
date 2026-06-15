@@ -116,16 +116,40 @@
         </table>
     </div>
     <div class="px-4 py-3 bg-surface-container border-t border-outline-variant flex flex-col md:flex-row justify-between items-center gap-2">
-        <span class="text-sm text-secondary">Mostrando {{ usuarios|length }} usuários</span>
+        <span class="text-sm text-secondary">
+            {% if paginacao and paginacao.total > 0 %}
+            Exibindo {{ (paginacao.page - 1) * paginacao.per_page + 1 }}–{{ [paginacao.page * paginacao.per_page, paginacao.total]|min }} de {{ paginacao.total }} usuários
+            {% else %}
+            0 usuários encontrados
+            {% endif %}
+        </span>
+        {% if paginacao and paginacao.pages > 1 %}
         <div class="flex items-center gap-1">
-            <button class="p-1.5 rounded border border-outline-variant hover:bg-surface-container-high transition-all disabled:opacity-50" disabled>
+            {% if paginacao.has_prev %}
+            <a href="{{ url_for('usuarios.listar', page=paginacao.prev_num, q=q, tipo=tipo, ativo=ativo) }}" class="p-1.5 rounded border border-outline-variant hover:bg-surface-container-high transition-all">
                 <span class="material-symbols-outlined text-sm">chevron_left</span>
-            </button>
-            <button class="px-3 py-1 rounded border border-primary bg-primary text-on-primary text-sm font-medium">1</button>
-            <button class="p-1.5 rounded border border-outline-variant hover:bg-surface-container-high transition-all">
+            </a>
+            {% else %}
+            <button class="p-1.5 rounded border border-outline-variant opacity-40" disabled><span class="material-symbols-outlined text-sm">chevron_left</span></button>
+            {% endif %}
+
+            {% for p in paginacao.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if p %}
+                <a href="{{ url_for('usuarios.listar', page=p, q=q, tipo=tipo, ativo=ativo) }}" class="px-3 py-1 rounded border text-sm font-medium transition-all {{ 'border-primary bg-primary text-on-primary' if p == paginacao.page else 'border-outline-variant hover:bg-surface-container-high' }}">{{ p }}</a>
+                {% else %}
+                <span class="px-2 text-secondary">…</span>
+                {% endif %}
+            {% endfor %}
+
+            {% if paginacao.has_next %}
+            <a href="{{ url_for('usuarios.listar', page=paginacao.next_num, q=q, tipo=tipo, ativo=ativo) }}" class="p-1.5 rounded border border-outline-variant hover:bg-surface-container-high transition-all">
                 <span class="material-symbols-outlined text-sm">chevron_right</span>
-            </button>
+            </a>
+            {% else %}
+            <button class="p-1.5 rounded border border-outline-variant opacity-40" disabled><span class="material-symbols-outlined text-sm">chevron_right</span></button>
+            {% endif %}
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -5,14 +5,16 @@ from models import Usuario, Instituicao
 usuarios_bp = Blueprint("usuarios", __name__)
 
 
+PER_PAGE = 15
+
 @usuarios_bp.route("/")
 def listar():
     q = request.args.get("q", "")
     tipo = request.args.get("tipo", "")
     ativo = request.args.get("ativo", "")
+    page = request.args.get("page", 1, type=int)
 
     query = Usuario.query
-
     if q:
         query = query.filter(Usuario.nome_completo.ilike(f"%{q}%") | Usuario.email.ilike(f"%{q}%"))
     if tipo:
@@ -20,8 +22,9 @@ def listar():
     if ativo != "":
         query = query.filter(Usuario.ativo == (ativo == "true"))
 
-    usuarios = query.order_by(Usuario.nome_completo).all()
-    return render_template("usuarios/listar.html", usuarios=usuarios, q=q, tipo=tipo, ativo=ativo)
+    paginacao = query.order_by(Usuario.nome_completo).paginate(page=page, per_page=PER_PAGE, error_out=False)
+    return render_template("usuarios/listar.html", usuarios=paginacao.items, paginacao=paginacao,
+                           q=q, tipo=tipo, ativo=ativo)
 
 
 @usuarios_bp.route("/novo", methods=["GET", "POST"])
@@ -44,7 +47,7 @@ def novo():
         )
         db.session.add(usuario)
         db.session.commit()
-        flash("Usuário cadastrado com sucesso!", "success")
+        flash(f"Usuário '{usuario.nome_completo}' cadastrado com sucesso!", "success")
         return redirect(url_for("usuarios.listar"))
     return render_template("usuarios/form.html", usuario=None, instituicoes=instituicoes)
 
@@ -66,7 +69,7 @@ def editar(id):
         usuario.estado_usuario = request.form.get("estado_usuario")
         usuario.cep = request.form.get("cep")
         db.session.commit()
-        flash("Usuário atualizado!", "success")
+        flash(f"Usuário '{usuario.nome_completo}' atualizado!", "success")
         return redirect(url_for("usuarios.listar"))
     return render_template("usuarios/form.html", usuario=usuario, instituicoes=instituicoes)
 
@@ -77,5 +80,5 @@ def desativar(id):
     usuario.ativo = not usuario.ativo
     db.session.commit()
     status = "reativado" if usuario.ativo else "desativado"
-    flash(f"Usuário {status} com sucesso!", "success")
+    flash(f"Usuário '{usuario.nome_completo}' {status} com sucesso!", "success")
     return redirect(url_for("usuarios.listar"))

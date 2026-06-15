@@ -12,8 +12,15 @@ from routes.colecoes import colecoes_bp
 
 app = Flask(__name__)
 
+import os
+DB_USER = os.getenv("DB_USER", "postgres")
+DB_PASS = os.getenv("DB_PASS", "1234")
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = os.getenv("DB_PORT", "5432")
+DB_NAME = os.getenv("DB_NAME", "postgres")
+
 app.config["SQLALCHEMY_DATABASE_URI"] = (
-    "postgresql+psycopg2://postgres:1234@localhost:5432/postgres?options=-c%20search_path=fdb"
+    f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}?options=-c%20search_path=fdb"
 )
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.secret_key = "projeto-fdb"

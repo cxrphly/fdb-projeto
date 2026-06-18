@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-on-surface tracking-tight">Comentários</h1>
+        <p class="text-sm text-secondary mt-1">Gerencie os feedbacks e discussões sobre os materiais</p>
+    </div>
+    <a href="{{ url_for('comentarios.novo') }}" class="bg-primary text-on-primary px-4 py-2 rounded-lg font-medium flex items-center gap-2 hover:opacity-90 transition-all shadow-sm">
+        <span class="material-symbols-outlined text-sm">add_comment</span>
+        Novo Comentário
+    </a>
+</div>
+
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm mb-6">
+    <form method="GET" class="flex flex-wrap items-end gap-4">
+        <div class="flex-1 min-w-[240px]">
+            <label class="text-xs font-medium text-on-surface-variant mb-1 block">Filtrar por Material</label>
+            <select name="id_material" class="w-full py-2 px-3 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm">
+                <option value="">Todos os Materiais</option>
+                {% for m in materiais %}
+                <option value="{{ m.id_material }}" {{ 'selected' if id_material|int == m.id_material }}>{{ m.titulo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="bg-primary-container text-on-primary-container px-5 py-2 rounded-lg font-medium flex items-center gap-2 hover:opacity-90 transition-all">
+            <span class="material-symbols-outlined text-sm">filter_list</span>
+            Filtrar
+        </button>
+        <a href="{{ url_for('comentarios.listar') }}" class="px-4 py-2 border border-outline-variant rounded-lg text-secondary hover:bg-surface-container-high transition-all">Limpar</a>
+    </form>
+</div>
+
+<div class="space-y-5">
+    {% for c in comentarios if not c.id_comentario_pai %}
+    <div class="group transition-all">
+        <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md transition-all relative overflow-hidden">
+            <div class="absolute left-0 top-0 w-1 h-full bg-primary"></div>
+            <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-sm uppercase">
+                    {{ c.autor.nome_completo[:2] }}
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="font-semibold text-on-surface">{{ c.autor.nome_completo }}</span>
+                            <span class="text-xs font-bold px-2 py-0.5 rounded-full 
+                                {% if c.autor.tipo == 'professor' %}bg-tertiary-container text-tertiary
+                                {% elif c.autor.tipo == 'administrador' %}bg-error-container text-error
+                                {% else %}bg-primary-container text-primary{% endif %}">
+                                {{ c.autor.tipo|upper }}
+                            </span>
+                            <span class="text-xs text-secondary">• {{ c.data_hora.strftime('%d/%m/%Y %H:%M') if c.data_hora else '-' }}</span>
+                        </div>
+                        <form method="POST" action="{{ url_for('comentarios.excluir', id=c.id_comentario) }}" onsubmit="return confirm('Tem certeza que deseja excluir este comentário?')">
+                            <button type="submit" class="p-1.5 text-secondary hover:text-error transition-colors rounded-lg">
+                                <span class="material-symbols-outlined text-sm">delete</span>
+                            </button>
+                        </form>
+                    </div>
+                    <p class="text-on-surface-variant leading-relaxed mb-3">{{ c.texto }}</p>
+                    <div class="flex items-center gap-4">
+                        <a href="{{ url_for('comentarios.novo') }}?id_comentario_pai={{ c.id_comentario }}" class="text-primary text-xs font-medium hover:underline flex items-center gap-1">
+                            <span class="material-symbols-outlined text-xs">reply</span> Responder
+                        </a>
+                        <span class="text-xs text-secondary">Material: {{ c.material.titulo }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Respostas -->
+        {% for resp in comentarios if resp.id_comentario_pai == c.id_comentario %}
+        <div class="ml-12 mt-3 space-y-3 border-l-2 border-primary/30 pl-5">
+            <div class="bg-surface-container-low border border-outline-variant/60 rounded-xl p-4 transition-all hover:bg-surface-container-low">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-secondary font-bold text-xs uppercase">
+                        {{ resp.autor.nome_completo[:2] }}
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between flex-wrap gap-2 mb-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium text-sm text-on-surface">{{ resp.autor.nome_completo }}</span>
+                                <span class="text-xs font-bold px-1.5 py-0.5 rounded-full 
+                                    {% if resp.autor.tipo == 'professor' %}bg-tertiary-container text-tertiary
+                                    {% elif resp.autor.tipo == 'administrador' %}bg-error-container text-error
+                                    {% else %}bg-primary-container text-primary{% endif %}">
+                                    {{ resp.autor.tipo|upper }}
+                                </span>
+                                <span class="text-xs text-secondary">(resposta) • {{ resp.data_hora.strftime('%d/%m/%Y %H:%M') if resp.data_hora else '-' }}</span>
+                            </div>
+                            <form method="POST" action="{{ url_for('comentarios.excluir', id=resp.id_comentario) }}" onsubmit="return confirm('Tem certeza que deseja excluir esta resposta?')">
+                                <button type="submit" class="p-1 text-secondary hover:text-error transition-colors rounded-lg">
+                                    <span class="material-symbols-outlined text-xs">delete</span>
+                                </button>
+                            </form>
+                        </div>
+                        <p class="text-sm text-on-surface-variant">{{ resp.texto }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-8 text-center text-secondary">
+        Nenhum comentário encontrado
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-on-surface tracking-tight">Tags</h1>
+        <p class="text-sm text-secondary mt-1">Gerencie as tags para classificação de materiais</p>
+    </div>
+    <a href="{{ url_for('tags.nova') }}" class="bg-primary text-on-primary px-4 py-2 rounded-lg font-medium flex items-center gap-2 hover:opacity-90 transition-all shadow-sm">
+        <span class="material-symbols-outlined text-sm">add</span>
+        Nova Tag
+    </a>
+</div>
+
+<!-- Filtros -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 shadow-sm mb-6">
+    <form method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+        <div class="md:col-span-4">
+            <label class="text-xs font-medium text-on-surface-variant mb-1 block">Buscar tag</label>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+                <input type="text" name="q" value="{{ q or '' }}" class="w-full pl-9 pr-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" placeholder="Nome da tag...">
+            </div>
+        </div>
+        <div class="md:col-span-3 flex gap-2">
+            <button type="submit" class="flex-1 bg-primary-container text-on-primary-container py-2 rounded-lg font-medium flex items-center justify-center gap-2 hover:opacity-90 transition-all">
+                <span class="material-symbols-outlined text-sm">filter_list</span>
+                Filtrar
+            </button>
+            <a href="{{ url_for('tags.listar') }}" class="px-4 py-2 border border-outline-variant rounded-lg text-secondary hover:bg-surface-container-high transition-all">
+                <span class="material-symbols-outlined text-sm">refresh</span>
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Grid de Tags -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    {% for tag in tags %}
+    <div class="bg-white border border-outline-variant rounded-xl p-4 hover:shadow-md transition-all group">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center">
+                    <span class="material-symbols-outlined text-primary text-sm">sell</span>
+                </div>
+                <div>
+                    <span class="font-medium text-on-surface">{{ tag.nome_tag }}</span>
+                    <p class="text-xs text-secondary">ID: #{{ tag.id_tag }}</p>
+                </div>
+            </div>
+            <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <a href="{{ url_for('tags.editar', id=tag.id_tag) }}" class="p-1.5 text-secondary hover:text-primary transition-colors rounded-lg" title="Editar">
+                    <span class="material-symbols-outlined text-sm">edit</span>
+                </a>
+                <form method="POST" action="{{ url_for('tags.excluir', id=tag.id_tag) }}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir esta tag?')">
+                    <button type="submit" class="p-1.5 text-secondary hover:text-error transition-colors rounded-lg" title="Excluir">
+                        <span class="material-symbols-outlined text-sm">delete</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-span-full bg-surface-container-lowest border border-outline-variant rounded-xl p-8 text-center text-secondary">
+        Nenhuma tag encontrada
+    </div>
+    {% endfor %}
+</div>
+
+<div class="mt-4 px-4 py-3 bg-surface-container border border-outline-variant rounded-xl">
+    <span class="text-sm text-secondary">Total: {{ tags|length }} tags cadastradas</span>
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-on-surface tracking-tight">Nova Denúncia</h1>
+        <p class="text-sm text-secondary mt-1">Reporte um material que viole as políticas da plataforma</p>
+    </div>
+    <a href="{{ url_for('denuncias.listar') }}" class="text-secondary hover:text-primary transition-colors flex items-center gap-1">
+        <span class="material-symbols-outlined text-sm">arrow_back</span>
+        Voltar
+    </a>
+</div>
+
+<div class="max-w-2xl mx-auto">
+    <div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-outline-variant bg-surface-container-low">
+            <h3 class="font-semibold text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">flag</span>
+                Registrar Denúncia
+            </h3>
+        </div>
+        <form method="POST" class="p-6 space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-medium text-on-surface-variant mb-1">Material *</label>
+                    <select name="id_material" required class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm">
+                        <option value="">Selecione...</option>
+                        {% for m in materiais %}
+                        <option value="{{ m.id_material }}">{{ m.titulo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-on-surface-variant mb-1">Denunciante *</label>
+                    <select name="id_usuario_denunciante" required class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm">
+                        <option value="">Selecione...</option>
+                        {% for u in usuarios %}
+                        <option value="{{ u.id_usuario }}">{{ u.nome_completo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">Motivo *</label>
+                <select name="motivo" required class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm">
+                    <option value="">Selecione...</option>
+                    <option value="direitos_autorais">Direitos Autorais</option>
+                    <option value="ofensivo">Conteúdo Ofensivo</option>
+                    <option value="incorreto">Conteúdo Incorreto</option>
+                    <option value="outro">Outro</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-on-surface-variant mb-1">Descrição Detalhada</label>
+                <textarea name="descricao_detalhada" rows="5" class="w-full px-3 py-2 border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary bg-surface transition-all text-sm" placeholder="Explique com detalhes o motivo da denúncia..."></textarea>
+                <p class="text-xs text-secondary mt-1">Forneça informações que ajudem na análise da denúncia</p>
+            </div>
+            <div class="flex justify-end gap-3 pt-4 border-t border-outline-variant">
+                <a href="{{ url_for('denuncias.listar') }}" class="px-6 py-2 border border-outline-variant rounded-lg text-secondary hover:bg-surface-container-high transition-all">Cancelar</a>
+                <button type="submit" class="px-6 py-2 bg-error text-on-error rounded-lg font-medium hover:opacity-90 transition-all shadow-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">flag</span>
+                    Registrar Denúncia
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

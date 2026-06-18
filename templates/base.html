@@ -150,16 +150,14 @@
                 <span class="material-symbols-outlined">star</span>
                 <span class="text-sm font-medium">Favoritos</span>
             </a>
-            <div class="flex items-center gap-3 px-4 py-2 text-outline rounded-lg mx-2 opacity-60 cursor-not-allowed">
+            <a href="{{ url_for('comentarios.listar') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
                 <span class="material-symbols-outlined">chat</span>
-                <span class="text-sm font-medium">Comentários</span>
-                <span class="ml-auto text-[9px] font-bold bg-secondary-container text-secondary px-1.5 py-0.5 rounded-full">EM BREVE</span>
-            </div>
-            <div class="flex items-center gap-3 px-4 py-2 text-outline rounded-lg mx-2 opacity-60 cursor-not-allowed">
-                <span class="material-symbols-outlined">report</span>
-                <span class="text-sm font-medium">Denúncias</span>
-                <span class="ml-auto text-[9px] font-bold bg-secondary-container text-secondary px-1.5 py-0.5 rounded-full">EM BREVE</span>
-            </div>
+                <span class="text-sm font-medium">Comentarios</span>
+            </a>
+            <a href="{{ url_for('denuncias.listar') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
+                <span class="material-symbols-outlined">folder_special</span>
+                <span class="text-sm font-medium">Denuncias</span>
+            </a>
             <a href="{{ url_for('colecoes.listar') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
                 <span class="material-symbols-outlined">folder_special</span>
                 <span class="text-sm font-medium">Coleções</span>
@@ -176,16 +174,14 @@
                 <span class="material-symbols-outlined">analytics</span>
                 <span class="text-sm font-medium">Gráfico Notas Materiais</span>
             </a>
-            <div class="flex items-center gap-3 px-4 py-2 text-outline rounded-lg mx-2 opacity-60 cursor-not-allowed">
+            <a href="{{ url_for('disciplinas.listar') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
                 <span class="material-symbols-outlined">menu_book</span>
                 <span class="text-sm font-medium">Disciplinas</span>
-                <span class="ml-auto text-[9px] font-bold bg-secondary-container text-secondary px-1.5 py-0.5 rounded-full">EM BREVE</span>
-            </div>
-            <div class="flex items-center gap-3 px-4 py-2 text-outline rounded-lg mx-2 opacity-60 cursor-not-allowed">
-                <span class="material-symbols-outlined">sell</span>
+            </a>
+            <a href="{{ url_for('tags.listar') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
+                <span class="material-symbols-outlined">book</span>
                 <span class="text-sm font-medium">Tags</span>
-                <span class="ml-auto text-[9px] font-bold bg-secondary-container text-secondary px-1.5 py-0.5 rounded-full">EM BREVE</span>
-            </div>
+            </a>
             <a href="{{ url_for('historico.listar') }}" class="flex items-center gap-3 px-4 py-2 text-on-surface-variant hover:bg-surface-container-high rounded-lg mx-2 transition-all duration-200">
                 <span class="material-symbols-outlined">history</span>
                 <span class="text-sm font-medium">Histórico</span>

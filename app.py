@@ -8,7 +8,10 @@ from routes.avaliacoes import avaliacoes_bp
 from routes.favoritos import favoritos_bp
 from routes.historico import historico_bp
 from routes.colecoes import colecoes_bp
-
+from routes.comentarios import comentarios_bp
+from routes.disciplinas import disciplinas_bp
+from routes.tags import tags_bp
+from routes.denuncias import denuncias_bp
 
 app = Flask(__name__)
 
@@ -35,6 +38,9 @@ app.register_blueprint(avaliacoes_bp, url_prefix="/avaliacoes")
 app.register_blueprint(favoritos_bp, url_prefix="/favoritos")
 app.register_blueprint(historico_bp, url_prefix="/historico")
 app.register_blueprint(colecoes_bp, url_prefix="/colecoes")
-
+app.register_blueprint(comentarios_bp, url_prefix="/comentarios")
+app.register_blueprint(disciplinas_bp, url_prefix="/disciplinas")
+app.register_blueprint(denuncias_bp, url_prefix="/denuncias")
+app.register_blueprint(tags_bp, url_prefix="/tags")
 if __name__ == "__main__":
     app.run(debug=True)
